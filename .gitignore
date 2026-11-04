@@ -1,0 +1,9 @@
+node_modules
+out
+dist
+.turbo
+*.tsbuildinfo
+.expo
+android/build
+android/app/build
+android/.gradle

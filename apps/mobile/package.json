@@ -1,0 +1,38 @@
+{
+  "name": "@cropvision/mobile",
+  "version": "2.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "test": "pnpm --workspace-root rebuild better-sqlite3 && vitest run",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@cropvision/domain": "workspace:*",
+    "@cropvision/schema": "workspace:*",
+    "@cropvision/sync-protocol": "workspace:*",
+    "@op-engineering/op-sqlite": "^19.0.3",
+    "expo": "~55.0.32",
+    "expo-dev-client": "^55.0.41",
+    "expo-file-system": "^55.0.26",
+    "expo-image-manipulator": "^55.0.21",
+    "expo-location": "^55.1.15",
+    "expo-sensors": "^55.0.19",
+    "expo-status-bar": "^55.0.6",
+    "fast-png": "^8.0.0",
+    "react": "19.2.0",
+    "react-native": "0.83.10",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-vision-camera": "^4.7.3",
+    "react-native-zeroconf": "^0.17.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.20.5",
+    "@types/react": "~19.2.18",
+    "better-sqlite3": "^13.0.3",
+    "typescript": "^5.9.0",
+    "vitest": "^5.1.0"
+  }
+}

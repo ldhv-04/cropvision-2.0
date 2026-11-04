@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "CropVision",
+    "slug": "cropvision-mobile",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "android": {
+      "package": "vn.cropvision.mobile",
+      "usesCleartextTraffic": true,
+      "permissions": ["android.permission.CAMERA", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION", "android.permission.CHANGE_WIFI_MULTICAST_STATE"]
+    },
+    "plugins": [
+      ["react-native-vision-camera", { "cameraPermissionText": "CropVision cần camera để chụp mẫu lá và quét mã vạch thuốc." }],
+      ["expo-location", { "locationAlwaysAndWhenInUsePermission": "CropVision dùng GPS để dẫn đường tới điểm chốt và xác định lô đất." }]
+    ]
+  }
+}

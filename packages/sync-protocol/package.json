@@ -1,0 +1,24 @@
+{
+  "name": "@cropvision/sync-protocol",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@cropvision/schema": "workspace:*",
+    "drizzle-orm": "^0.44.0",
+    "drizzle-zod": "^0.8.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.0.0",
+    "better-sqlite3": "^13.0.3",
+    "vitest": "^3.2.0"
+  }
+}
