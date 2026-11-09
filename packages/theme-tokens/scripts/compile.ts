@@ -1,7 +1,7 @@
 // Node-only compiler: palettes/*.json -> css-variables.css, palettes.generated.ts, figma tokens. Not imported by apps.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SHADCN_TOKENS, TELEMETRY_TOKENS, type Palette } from './types.ts';
+import { SHADCN_TOKENS, TELEMETRY_TOKENS, type Palette } from '../src/types.ts';
 
 export { SHADCN_TOKENS, TELEMETRY_TOKENS };
 

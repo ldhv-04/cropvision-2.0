@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { SHADCN_TOKENS, TELEMETRY_TOKENS, compileCss, compileFigmaTokens, compileTs, loadPalettesFromDir, validatePalette } from '../src/compile.ts';
+import { SHADCN_TOKENS, TELEMETRY_TOKENS, compileCss, compileFigmaTokens, compileTs, loadPalettesFromDir, validatePalette } from '../scripts/compile.ts';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const palettes = loadPalettesFromDir(`${root}palettes`);

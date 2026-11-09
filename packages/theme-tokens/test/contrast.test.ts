@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fileURLToPath } from 'node:url';
-import { loadPalettesFromDir } from '../src/compile.ts';
+import { loadPalettesFromDir } from '../scripts/compile.ts';
 import { auditContrast, contrastRatio } from '../src/contrast.ts';
 
 const palettes = loadPalettesFromDir(fileURLToPath(new URL('../palettes', import.meta.url)));

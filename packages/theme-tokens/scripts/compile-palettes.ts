@@ -1,7 +1,7 @@
 // Run: pnpm --filter @cropvision/theme-tokens compile   (vite-node; the contrast audit runs in the tests)
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { compileCss, compileFigmaTokens, compileTs, loadPalettesFromDir } from '../src/compile.ts';
+import { compileCss, compileFigmaTokens, compileTs, loadPalettesFromDir } from './compile.ts';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const palettes = loadPalettesFromDir(`${root}palettes`);
