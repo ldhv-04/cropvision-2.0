@@ -10,7 +10,7 @@
     "typecheck": "tsc -p ."
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.0"
+    "drizzle-orm": "^0.45.4"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
