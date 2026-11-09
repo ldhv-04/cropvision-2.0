@@ -8,12 +8,21 @@
 @tailwind utilities;
 
 @layer base {
-  * { @apply border-border; }
+  * { @apply border-border; scrollbar-width: thin; scrollbar-color: rgb(var(--border-rgb)) transparent; }
   html, body, #root { @apply h-full; }
   body {
     @apply m-0 overflow-hidden bg-background text-[13px] text-foreground antialiased;
     font-family: Inter, 'Segoe UI', system-ui, sans-serif;
   }
+}
+
+@layer components {
+  /* MapLibre chrome on tokens: flat surfaces, 1px borders, no shadows. */
+  .maplibregl-ctrl-group { @apply rounded-md border border-border bg-card !important; box-shadow: none !important; }
+  .maplibregl-ctrl-group button + button { @apply border-t border-border; }
+  [data-scheme='dark'] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1); }
+  .maplibregl-popup-content { @apply rounded-md border border-border bg-popover p-2 text-popover-foreground; box-shadow: none; }
+  .maplibregl-popup-tip { display: none; }
 }
 
 @layer utilities {

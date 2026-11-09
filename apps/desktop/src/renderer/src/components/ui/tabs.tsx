@@ -15,6 +15,7 @@ export const TabsTrigger = forwardRef<ElementRef<typeof T.Trigger>, ComponentPro
 TabsTrigger.displayName = 'TabsTrigger';
 
 export const TabsContent = forwardRef<ElementRef<typeof T.Content>, ComponentPropsWithoutRef<typeof T.Content>>(({ className, ...p }, ref) => (
-  <T.Content ref={ref} className={cn('min-h-0 flex-1 focus-visible:outline-none', className)} {...p} />
+  // Radix keeps inactive panels mounted with `hidden`; a display class (flex) would override it, so hide by state too.
+  <T.Content ref={ref} className={cn('min-h-0 flex-1 focus-visible:outline-none', className, 'data-[state=inactive]:hidden')} {...p} />
 ));
 TabsContent.displayName = 'TabsContent';

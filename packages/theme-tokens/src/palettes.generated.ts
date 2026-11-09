@@ -135,7 +135,7 @@ export const PALETTES = [
       "healthy-fill": "#005C1F",
       "healthy-bg": "#FFFFFF",
       "healthy-border": "#000000",
-      "warning-fill": "#FFD600",
+      "warning-fill": "#8A6100",
       "warning-bg": "#FFFFFF",
       "warning-border": "#000000",
       "critical-fill": "#B00000",

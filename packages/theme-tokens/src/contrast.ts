@@ -35,6 +35,17 @@ export function auditContrast(p: Palette): ContrastRow[] {
   for (const t of TELEMETRY_TONES) {
     const fill = p.telemetry[`${t}-fill`], ink = readableOn(fill);
     rows.push(row(ink, `telemetry.${t}-fill`, 'onFill', ink, fill));
+    // Status badge: fill colour as text on the tinted bg (rgba tints composited over the page background).
+    rows.push(row(`telemetry.${t}-fill`, `telemetry.${t}-bg`, 'onFill', fill, flatten(p.telemetry[`${t}-bg`], p.shadcn.background)));
   }
   return rows;
+}
+
+const hex = (n: number) => Math.round(n).toString(16).padStart(2, '0');
+/** `rgba(r, g, b, a)` over an opaque #RRGGBB base → #RRGGBB; hex input is returned unchanged. */
+export function flatten(colour: string, base: string): string {
+  const m = /^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)$/.exec(colour);
+  if (!m) return colour;
+  const a = Number(m[4]);
+  return '#' + [1, 2, 3].map((i) => hex(Number(m[i]) * a + parseInt(base.slice(2 * i - 1, 2 * i + 1), 16) * (1 - a))).join('');
 }

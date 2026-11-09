@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server';
 import { Button, buttonVariants } from '../src/renderer/src/components/ui/button';
 import { Badge } from '../src/renderer/src/components/ui/badge';
 import { Card } from '../src/renderer/src/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '../src/renderer/src/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../src/renderer/src/components/ui/tabs';
 import { cn } from '../src/renderer/src/lib/utils';
 
 const uiDir = new URL('../src/renderer/src/components/ui/', import.meta.url);
@@ -60,6 +60,11 @@ describe('shadcn primitives, Impeccable variant (AC-D2)', () => {
     const html = renderToString(<Tabs defaultValue="a"><TabsList><TabsTrigger value="a">A</TabsTrigger><TabsTrigger value="b">B</TabsTrigger></TabsList></Tabs>);
     expect(html).toContain('role="tablist"');
     expect(html).toContain('aria-selected="true"');
+  });
+
+  it('inactive tab panels stay hidden even when the panel has a display class (flex)', () => {
+    const html = renderToString(<Tabs defaultValue="a"><TabsContent value="a">A</TabsContent><TabsContent value="b" className="flex flex-col">B</TabsContent></Tabs>);
+    expect(html).toMatch(/data-state="inactive"[^>]*class="[^"]*data-\[state=inactive\]:hidden/);
   });
 
   it('cn merges conflicting tailwind classes, last wins', () => {

@@ -45,6 +45,15 @@ describe('auditContrast (AC-T5)', () => {
     for (const r of rows.filter((x) => x.kind === 'text')) expect(r.ratio).toBeGreaterThanOrEqual(14);
   });
 
+  it('checks badge text (telemetry fill on its tinted bg), compositing rgba bgs over the page background', () => {
+    const dark = find('agri-command-dark', 'telemetry.warning-fill', 'telemetry.warning-bg');
+    expect(dark.kind).toBe('onFill');
+    // #F59E0B over (amber @ 12 % on #0B0F17)
+    expect(dark.ratio).toBeGreaterThan(7);
+    expect(dark.ratio).toBeLessThan(10);
+    expect(find('tactical-daylight', 'telemetry.critical-fill', 'telemetry.critical-bg').ratio).toBeCloseTo(contrastRatio('#B91C1C', '#FEE2E2'), 5);
+  });
+
   it('checks white/black legibility on solid telemetry fills used by mobile pills', () => {
     const r = auditContrast(get('tactical-daylight')).find((x) => x.bg === 'telemetry.warning-fill')!;
     expect(r.fg).toBe('#FFFFFF');

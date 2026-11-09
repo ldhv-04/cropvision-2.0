@@ -364,7 +364,7 @@
         "$type": "color"
       },
       "warning-fill": {
-        "$value": "#FFD600",
+        "$value": "#8A6100",
         "$type": "color"
       },
       "warning-bg": {

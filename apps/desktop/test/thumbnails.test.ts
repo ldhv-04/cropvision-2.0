@@ -37,6 +37,12 @@ describe('cv-media://thumb (AC-D3)', () => {
     expect(await createThumbnailer({ mediaDir, cacheDir }).get('2026-11/sample_a.webp')).toBe(first);
   });
 
+  it('never enlarges an image already smaller than the thumbnail', async () => {
+    writeFileSync(join(mediaDir, '2026-11', 'tiny.webp'), await sharp({ create: { width: 40, height: 30, channels: 3, background: '#000' } }).webp().toBuffer());
+    const meta = await sharp(readFileSync((await createThumbnailer({ mediaDir, cacheDir }).get('2026-11/tiny.webp'))!)).metadata();
+    expect([meta.width, meta.height]).toEqual([40, 30]);
+  });
+
   it('returns null for a key with no stored image', async () => {
     expect(await createThumbnailer({ mediaDir, cacheDir }).get('2026-11/missing.webp')).toBeNull();
   });
