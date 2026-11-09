@@ -1,5 +1,5 @@
 import {
-  computeBlockEpidemiology, decideCoffeeRustAction, evaluateAgronomicAction, findPesticide, generateUuidV7, pointInPolygon,
+  computeBlockEpidemiology, decideCoffeeRustAction, evaluateAgronomicAction, findPesticide, generateUuidV7, pointInPolygon, polygonAreaHectares,
   type CanopyLayer, type PesticideProduct, type SegmentationResult,
 } from '@cropvision/domain';
 import { upsertRow, type SqlExecutor } from '../db/sql-store';
@@ -59,17 +59,25 @@ export async function finishSession(exec: SqlExecutor, sessionId: string, now: C
 }
 
 export interface LocatedBlock { id: string; name: string; treeCount: number; expectedHarvestDate: number | null; nominalDripFlowLph: number }
-/** Which block are we standing in? Point-in-polygon on the offline block table. */
+/**
+ * Which block are we standing in? Point-in-polygon on the offline block table.
+ * Overlapping blocks (user decision 2026-11-09): the smallest containing polygon wins, measured from the
+ * geometry (not the stored area column); equal areas fall back to the lower id so the answer is deterministic.
+ */
 export async function locateBlock(exec: SqlExecutor, p: LatLng): Promise<LocatedBlock | null> {
   const rows = await exec.all<any>('SELECT id, name, tree_count, expected_harvest_date, nominal_drip_flow_lph, boundary_geojson FROM blocks WHERE deleted_at IS NULL');
+  let best: { row: any; area: number } | null = null;
   for (const b of rows) {
     try {
-      if (pointInPolygon([p.longitude, p.latitude], JSON.parse(b.boundary_geojson).coordinates[0])) {
-        return { id: b.id, name: b.name, treeCount: b.tree_count, expectedHarvestDate: b.expected_harvest_date, nominalDripFlowLph: b.nominal_drip_flow_lph };
-      }
+      const polygon = JSON.parse(b.boundary_geojson);
+      if (!pointInPolygon([p.longitude, p.latitude], polygon.coordinates[0])) continue;
+      const area = polygonAreaHectares(polygon);
+      if (!best || area < best.area || (area === best.area && b.id < best.row.id)) best = { row: b, area };
     } catch { /* malformed boundary: skip this block */ }
   }
-  return null;
+  if (!best) return null;
+  const b = best.row;
+  return { id: b.id, name: b.name, treeCount: b.tree_count, expectedHarvestDate: b.expected_harvest_date, nominalDripFlowLph: b.nominal_drip_flow_lph };
 }
 
 export type ScanVerdict =

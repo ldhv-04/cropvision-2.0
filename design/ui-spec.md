@@ -85,9 +85,9 @@ A-UI-9: mobile uses the system monospace with tabular-nums (JetBrains Mono not b
 | AC-M1..M6 | `apps/mobile/test/hmi.test.ts` (20); mobile typecheck clean; Metro Android bundle builds (906 modules). Android emulator (`Small_Phone`, debug APK + Metro, real desktop hub): M1 daylight + high-noon switch live; M2 green banner from a real handshake, one tap pulled 4 orders, amber when the hub went down; M3 stripes/summaries/launch buttons; M4 emerald 2 px when still, red 4 px + "GIỮ CHẶT TAY - ĐANG RUNG (5.4 m/s²)" + shutter "KHÓA" after injected shake; M5 half slide → no lease, full slide → ACTIVE + DỪNG KHẨN CẤP → EXPIRED, needle 2.50 bar in band; M6 approved verdict rendered — the BLOCKED full-screen lockout was **not** rendered on device (stale 21 195 ha "Lô Demo 1" from an earlier session contains the test block, see note). |
 
 Device-found and fixed: tab labels breaking mid-word; scanner camera preview drawn over the header (SurfaceView → texture-view); keyboard hiding the barcode field (moved above preview, submit on ✓); scouting bar under the status bar; shake banner hidden by the deck.
-Device-found, not fixed (pre-existing logic): `locateBlock` returns the first containing block when polygons overlap. Cosmetic: on a 640 dp phone the reticle's bottom ~10 dp sits under the thumb deck.
+Overlapping blocks (**user decision 2026-11-09**): `locateBlock` now picks the smallest containing polygon by geometry (`polygonAreaHectares`), ties → lower id; regression test in `apps/mobile/test/scouting.test.ts`. Cosmetic: on a 640 dp phone the reticle's bottom ~10 dp sits under the thumb deck.
 
-Contrast audit of plan-specified values still below target (needs a user decision; `pnpm --filter @cropvision/theme-tokens contrast`):
+**User decision 2026-11-09: keep these plan-specified colours unchanged** (accepted known gaps; `pnpm --filter @cropvision/theme-tokens contrast` lists them):
 agri-command-dark: destructive-foreground/destructive 3.76:1 < 4.5; border/background 1.31:1 < 3; critical badge text 4.45:1; hydraulic badge text 4.43:1.
 tactical-daylight: muted-foreground on background 9.83:1 and on muted 9.08:1 < the plan's own 10:1; border/background 2.43:1 < 3.
 
