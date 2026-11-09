@@ -26,6 +26,10 @@ describe('dependency security floors', () => {
     expect(version('drizzle-orm').join('.')).toSatisfy((v: string) => atLeast(v.split('.').map(Number), [0, 45, 2]));
   });
 
+  it('vitest >= 4.1.12 (GHSA-82fw-gwwq-j7x9, GHSA-qxg6-89mg-rqv8; drops vulnerable tinypool)', () => {
+    expect(version('vitest').join('.')).toSatisfy((v: string) => atLeast(v.split('.').map(Number), [4, 1, 12]));
+  });
+
   it('one drizzle-orm instance: sync-protocol and @cropvision/schema resolve the same copy', () => {
     const schemaReq = createRequire(req.resolve('@cropvision/schema'));
     expect(req.resolve('drizzle-orm')).toBe(schemaReq.resolve('drizzle-orm'));
