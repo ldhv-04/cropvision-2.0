@@ -67,3 +67,28 @@ Farm selector, crop-season badge, leaf-wetness/microclimate hours, lesion-mask s
 
 ## 4. Assumptions
 A-UI-1..3 above. A-UI-4: Vietnamese UI strings stay; English module names from the plan used as labels.
+A-UI-5: rule-engine `CULTURAL_CONTROL_ONLY` is issued as a PRUNING work order; the others as SPRAYING.
+A-UI-6: mobile work-order stripe tones: SCOUTING healthy, SPRAYING critical, IRRIGATION/FERTIGATION hydraulic, PRUNING warning.
+A-UI-7: mobile "hub connected" = handshake of the saved hub URL answers within 1.5 s (probed every 15 s); no automatic background push was added (sync behaviour unchanged).
+A-UI-8: the PHI lockout offers only "scan another product"; it cannot log or apply the blocked product.
+A-UI-9: mobile uses the system monospace with tabular-nums (JetBrains Mono not bundled: no font asset pipeline); the glare palette choice is per session (not persisted).
+
+## 5. Status and evidence (2026-11-09)
+| AC | Evidence |
+|---|---|
+| AC-T1..T7 | `packages/theme-tokens`: 46 tests (compile, drift, validation, contrast audit, controller, ThemeProvider SSR, preset). Drift test proven to fail on an uncompiled palette edit. |
+| AC-D1 | `test/tailwind.test.ts` (real PostCSS + preset), `pnpm build` passes |
+| AC-D2 | `test/ui-primitives.test.tsx` (10, incl. banned-style scan) |
+| AC-D3 | `test/thumbnails.test.ts` (7, real sharp: ≤160 px, cache, 404, traversal, corrupt, no upscale); handler test for `thumbUrl`; e2e: list `img` is `cv-media://thumb`, naturalWidth ≤ 160 |
+| AC-D4 | `packages/theme-tokens/test/severity.test.ts` pins cut-offs to `decideCoffeeRustAction` |
+| AC-S1..S7 | `test/shell-logic.test.ts` (9) + real-Electron e2e 15/15 PASS (shell 0 px page scroll, 5 rail buttons, 400 px dock, legend, Alt+N, Ctrl+K, overview → SPRAYING order, 300 samples → 18 DOM rows, dialog full image, theme switch both ways, no console errors) |
+| AC-M1..M6 | `apps/mobile/test/hmi.test.ts` (20); mobile typecheck clean; Metro Android bundle builds (906 modules). Android emulator (`Small_Phone`, debug APK + Metro, real desktop hub): M1 daylight + high-noon switch live; M2 green banner from a real handshake, one tap pulled 4 orders, amber when the hub went down; M3 stripes/summaries/launch buttons; M4 emerald 2 px when still, red 4 px + "GIỮ CHẶT TAY - ĐANG RUNG (5.4 m/s²)" + shutter "KHÓA" after injected shake; M5 half slide → no lease, full slide → ACTIVE + DỪNG KHẨN CẤP → EXPIRED, needle 2.50 bar in band; M6 approved verdict rendered — the BLOCKED full-screen lockout was **not** rendered on device (stale 21 195 ha "Lô Demo 1" from an earlier session contains the test block, see note). |
+
+Device-found and fixed: tab labels breaking mid-word; scanner camera preview drawn over the header (SurfaceView → texture-view); keyboard hiding the barcode field (moved above preview, submit on ✓); scouting bar under the status bar; shake banner hidden by the deck.
+Device-found, not fixed (pre-existing logic): `locateBlock` returns the first containing block when polygons overlap. Cosmetic: on a 640 dp phone the reticle's bottom ~10 dp sits under the thumb deck.
+
+Contrast audit of plan-specified values still below target (needs a user decision; `pnpm --filter @cropvision/theme-tokens contrast`):
+agri-command-dark: destructive-foreground/destructive 3.76:1 < 4.5; border/background 1.31:1 < 3; critical badge text 4.45:1; hydraulic badge text 4.43:1.
+tactical-daylight: muted-foreground on background 9.83:1 and on muted 9.08:1 < the plan's own 10:1; border/background 2.43:1 < 3.
+
+Memory (AC-18 metric `e2e/memory.mjs`, same machine, 3 runs each): pre-change build 369–370 MB, new build 375–376 MB (+6 MB, larger CSS/fonts/Radix). Thumbnail effect under image-heavy load not measured.

@@ -56,13 +56,18 @@ export function ChemicalScannerScreen({ exec }: { exec: SqlExecutor }) {
   return (
     <View style={s.screen}>
       <Text style={s.h1}>Quét thuốc BVTV</Text>
-      {hasPermission && device
-        ? <Camera style={{ height: 200, borderRadius: 8, borderWidth: 2, borderColor: c.border }} device={device} isActive={!lock} codeScanner={scanner} />
-        : <Text style={s.muted}>Camera chưa sẵn sàng — nhập mã thủ công bên dưới.</Text>}
-      <View style={[s.row, { marginVertical: 12, flexWrap: 'nowrap' }]}>
-        <TextInput testID="barcode-input" style={[s.input, { flex: 1 }]} value={code} onChangeText={setCode} placeholder="Mã vạch" placeholderTextColor={c.muted} keyboardType="number-pad" />
+      {/* manual entry above the preview: the on-screen keyboard covered it when it sat below (seen on emulator) */}
+      <View style={[s.row, { marginBottom: 12, flexWrap: 'nowrap' }]}>
+        <TextInput testID="barcode-input" style={[s.input, { flex: 1 }]} value={code} onChangeText={setCode} placeholder="Mã vạch" placeholderTextColor={c.muted}
+          keyboardType="number-pad" returnKeyType="done" onSubmitEditing={() => code && check(code)} />
         <Btn title="Kiểm tra" testID="check" onPress={() => check(code)} disabled={!code} />
       </View>
+      {hasPermission && device
+        // texture-view: a SurfaceView preview ignores RN layout/clipping on Android and was drawn over the header (seen on emulator).
+        ? <View style={{ height: 200, borderRadius: 8, borderWidth: 2, borderColor: c.border, overflow: 'hidden', marginBottom: 12 }}>
+            <Camera style={{ flex: 1 }} device={device} isActive={!lock} codeScanner={scanner} androidPreviewViewType="texture-view" />
+          </View>
+        : <Text style={[s.muted, { marginBottom: 12 }]}>Camera chưa sẵn sàng — nhập mã ở trên.</Text>}
 
       {verdict?.status === 'OK' && (
         <View testID="verdict" style={{ backgroundColor: c.healthy, borderRadius: 8, padding: 16, gap: 6 }}>

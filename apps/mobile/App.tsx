@@ -69,7 +69,7 @@ function Field({ exec, deviceId }: { exec: SqlExecutor; deviceId: string }) {
       </View>
       {/* thumb zone: navigation at the bottom, 56px targets */}
       <View style={{ flexDirection: 'row', gap: 8, padding: 8, borderTopWidth: 2, borderColor: c.border, backgroundColor: c.card }}>
-        {TABS.map(([t, label]) => <Btn key={t} testID={`tab-${t}`} title={label} onPress={() => setTab(t)} variant="outline" selected={t === tab} style={{ flex: 1 }} />)}
+        {TABS.map(([t, label]) => <Btn key={t} testID={`tab-${t}`} title={label} onPress={() => setTab(t)} variant="outline" selected={t === tab} lines={1} style={{ flex: 1, paddingHorizontal: 4 }} />)}
       </View>
     </SafeAreaView>
   );

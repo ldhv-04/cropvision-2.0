@@ -29,8 +29,10 @@ export function useHmi() {
 export const severityColor = (c: HmiColors, pct: number) => c[severityTone(pct)];
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'outline';
-export function Btn({ title, onPress, disabled, variant = 'primary', selected, style, testID, height = TOUCH_MIN }: {
+export function Btn({ title, onPress, disabled, variant = 'primary', selected, style, testID, height = TOUCH_MIN, lines }: {
   title: string; onPress: () => void; disabled?: boolean; variant?: Variant; selected?: boolean; style?: ViewStyle; testID?: string; height?: number;
+  /** Max label lines; with 1 the label shrinks to fit instead of breaking mid-word. */
+  lines?: number;
 }) {
   const { c } = useHmi();
   const v = selected ? 'primary' : variant;
@@ -44,7 +46,8 @@ export function Btn({ title, onPress, disabled, variant = 'primary', selected, s
         backgroundColor: disabled ? c.surface : bg, borderColor: disabled ? c.border : v === 'outline' ? c.input : bg,
         transform: [{ translateY: pressed && !disabled ? 1 : 0 }], opacity: pressed && !disabled ? 0.85 : 1,
       }, style]}>
-      <Text style={{ color: disabled ? c.muted : fg, fontWeight: '700', fontSize: 16, textAlign: 'center' }}>{title}</Text>
+      <Text numberOfLines={lines} adjustsFontSizeToFit={lines === 1} minimumFontScale={0.8}
+        style={{ color: disabled ? c.muted : fg, fontWeight: '700', fontSize: 16, textAlign: 'center' }}>{title}</Text>
     </Pressable>
   );
 }

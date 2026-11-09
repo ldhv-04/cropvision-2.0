@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, StatusBar as RNStatusBar, Text, View } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import * as Location from 'expo-location';
 import { generateUuidV7, type CanopyLayer, type SegmentationResult } from '@cropvision/domain';
@@ -16,6 +16,9 @@ import type { ScoutTarget } from './WorkOrderListScreen';
 // Over the live camera feed the HUD uses fixed white-on-black ink, independent of the daylight palette.
 const HUD_INK = '#FFFFFF';
 const HUD_DIM = '#E2E8F0';
+// The camera screen is full-bleed, so the top bar must clear the Android status bar itself.
+const STATUS_BAR = Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 24 : 44;
+const RETICLE_TOP = STATUS_BAR + 112;
 
 export function GuidedScoutingScreen({ exec, deviceId, target, onDone }: { exec: SqlExecutor; deviceId: string; target: ScoutTarget; onDone: () => void }) {
   const { c, s } = useHmi();
@@ -102,14 +105,15 @@ export function GuidedScoutingScreen({ exec, deviceId, target, onDone }: { exec:
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <Camera ref={cam} style={{ flex: 1 }} device={device} isActive photo />
       {/* square reticle = the region saved as the 1024×1024 sample; colour and width follow the IMU gate */}
-      <View pointerEvents="none" style={{ position: 'absolute', top: 120, alignSelf: 'center', width: 280, height: 280, borderWidth: reticle.width, borderColor: reticle.color, borderRadius: 4 }} />
+      <View pointerEvents="none" style={{ position: 'absolute', top: RETICLE_TOP, alignSelf: 'center', width: 280, height: 280, borderWidth: reticle.width, borderColor: reticle.color, borderRadius: 4 }} />
+      {/* banner sits inside the reticle's top edge: below it, the thumb deck covers it on short phones (seen on a 640dp emulator) */}
       {reticle.banner && (
-        <View pointerEvents="none" style={{ position: 'absolute', top: 410, alignSelf: 'center', backgroundColor: reticle.color, borderRadius: 6, paddingHorizontal: 12, paddingVertical: 8 }}>
+        <View pointerEvents="none" style={{ position: 'absolute', top: RETICLE_TOP + 12, alignSelf: 'center', maxWidth: 260, backgroundColor: reticle.color, borderRadius: 6, paddingHorizontal: 12, paddingVertical: 8 }}>
           <Text testID="gate-banner" style={{ color: HUD_INK, fontWeight: '900', fontSize: 15 }}>{reticle.banner}</Text>
         </View>
       )}
 
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.8)', paddingHorizontal: 16, paddingVertical: 12, gap: 4 }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: 'rgba(0,0,0,0.8)', paddingHorizontal: 16, paddingTop: STATUS_BAR + 8, paddingBottom: 12, gap: 4 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
           <Text style={{ color: HUD_INK, fontWeight: '700', fontSize: 16, flexShrink: 1 }}>{target.blockName}</Text>
           <Text style={{ color: HUD_INK, fontWeight: '900', fontSize: 16, fontFamily: MONO }}>{checkpointProgress(visited.size, cps.rows.length)}</Text>
