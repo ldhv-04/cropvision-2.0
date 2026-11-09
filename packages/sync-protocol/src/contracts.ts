@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 import { createSelectSchema } from 'drizzle-zod';
 import {
   agronomicLogs, blocks, irrigationLeases, leafSamples, scoutingCheckpoints, scoutingSessions, workOrders,
