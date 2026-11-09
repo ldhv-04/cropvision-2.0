@@ -4,13 +4,16 @@ import { openDb } from '../src/main/db';
 import { createHandlers } from '../src/main/ipc-handlers';
 import { LeaseManager } from '../src/main/lease-manager';
 import { SimulatedIrrigationController } from '@cropvision/domain';
+import { leafSamples, scoutingSessions } from '@cropvision/schema';
 
 const DAY = 86_400_000;
 const NOW = 1_700_000_000_000;
 const poly = { type: 'Polygon' as const, coordinates: [[[108, 12], [108.01, 12], [108.01, 12.006], [108, 12.006], [108, 12]]] };
 let h: ReturnType<typeof createHandlers>;
+let db: ReturnType<typeof openDb>['db'];
 beforeEach(() => {
   const ctx = openDb(':memory:');
+  db = ctx.db;
   const ctrl = new SimulatedIrrigationController();
   h = createHandlers({ db: ctx.db, leases: new LeaseManager(ctx.db, ctrl, () => NOW), hubInfo: () => ({ port: 1, hubId: 'h', farmName: 'f', addresses: [], mdns: false }), now: () => NOW });
 });
@@ -76,6 +79,20 @@ describe('desktop handlers (AC-17 logic)', () => {
     expect(await h.listLeases()).toHaveLength(1);
     await h.abortLease(l.id);
     expect((await h.listLeases())[0]!.status).toBe('EXPIRED');
+  });
+
+  it('listSamples gives a 160px thumb URL next to the full URL, only for verified media (AC-D3)', async () => {
+    const b = await mkBlock();
+    const ts = { createdAt: NOW, updatedAt: NOW };
+    db.insert(scoutingSessions).values({ id: 's1', blockId: b.id, deviceId: 'd', startedAt: NOW, ...ts }).run();
+    const sample = { sessionId: 's1', canopyLayer: 'LOW' as const, latitude: 12, longitude: 108, imuStabilityScore: 0.1, leafPixelCount: 100, lesionPixelCount: 5, dsIndexPct: 5, engineVersion: 'e', capturedAt: NOW, ...ts };
+    db.insert(leafSamples).values([
+      { ...sample, id: 'ok', imageRelativeKey: '2026-11/a b.webp', mediaSyncStatus: 'VERIFIED' },
+      { ...sample, id: 'local', imageRelativeKey: '2026-11/c.webp', mediaSyncStatus: 'LOCAL_ONLY' },
+    ]).run();
+    const rows = Object.fromEntries((await h.listSamples('s1')).map((s) => [s.id, s]));
+    expect(rows.ok).toMatchObject({ mediaUrl: 'cv-media://media/2026-11/a%20b.webp', thumbUrl: 'cv-media://thumb/2026-11/a%20b.webp' });
+    expect(rows.local).toMatchObject({ mediaUrl: null, thumbUrl: null });
   });
 
   it('sessions list is empty at start; media URLs use cv-media:// (no base64)', async () => {

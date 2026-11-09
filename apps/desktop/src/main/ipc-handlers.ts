@@ -8,6 +8,7 @@ import {
   planVenturiFertigation, polygonAreaHectares, type VenturiInput,
 } from '@cropvision/domain';
 import type { Db } from './db';
+import { thumbUrl } from './thumbnails';
 import type { LeaseManager, LeaseRequest } from './lease-manager';
 
 export interface HubInfo { port: number; hubId: string; farmName: string; addresses: string[]; mdns: boolean }
@@ -109,7 +110,10 @@ export function createHandlers(c: HandlerContext) {
     },
     listSamples: async (sessionId: string) =>
       db.select().from(leafSamples).where(and(eq(leafSamples.sessionId, sessionId), live(leafSamples))).all()
-        .map((s) => ({ ...s, mediaUrl: s.mediaSyncStatus === 'VERIFIED' ? mediaUrl(s.imageRelativeKey) : null })),
+        .map((s) => {
+          const ok = s.mediaSyncStatus === 'VERIFIED';
+          return { ...s, mediaUrl: ok ? mediaUrl(s.imageRelativeKey) : null, thumbUrl: ok ? thumbUrl(s.imageRelativeKey) : null };
+        }),
 
     listLogs: async () => db.select().from(agronomicLogs).where(live(agronomicLogs)).all().sort((a, b) => b.executedAt - a.executedAt),
     /** Pesticides pass the deterministic PHI lock before they are written (architectural law 5). */

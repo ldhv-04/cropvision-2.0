@@ -9,6 +9,7 @@ import { openDb } from './db';
 import { createHub, safeMediaPath } from './lan-server';
 import { advertiseHub } from './mdns-broadcaster';
 import { createHandlers } from './ipc-handlers';
+import { createThumbnailer } from './thumbnails';
 import { LeaseManager } from './lease-manager';
 import { SimulatedIrrigationController } from '@cropvision/domain';
 import { API_METHODS } from '../shared/api';
@@ -65,9 +66,15 @@ async function main() {
   for (const m of API_METHODS) ipcMain.handle(`cv:${m}`, (_e, ...args) => all[m]!(...args));
 
   // cv-media://media/<key> and cv-media://tiles/basemap.pmtiles: files straight from disk, never Base64 over IPC.
-  protocol.handle('cv-media', (req) => {
+  // cv-media://thumb/<key>: 160x160 WebP generated once into userData/thumbs (lists and popovers never decode originals).
+  const thumbs = createThumbnailer({ mediaDir, cacheDir: join(userData, 'thumbs') });
+  protocol.handle('cv-media', async (req) => {
     const u = new URL(req.url);
     const rel = decodeURIComponent(u.pathname).replace(/^\/+/, '');
+    if (u.hostname === 'thumb') {
+      const t = await thumbs.get(rel);
+      return t ? net.fetch(pathToFileURL(t).toString()) : new Response('not found', { status: 404 });
+    }
     const file = u.hostname === 'tiles' ? settings.tilesPath ?? null : u.hostname === 'media' ? safeMediaPath(mediaDir, rel) : null;
     if (!file || !existsSync(file)) return new Response('not found', { status: 404 });
     return net.fetch(pathToFileURL(file).toString(), { headers: req.headers }); // forwards Range for PMTiles

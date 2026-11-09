@@ -1,0 +1,22 @@
+/* Colours: packages/theme-tokens (generated). Never put hex values in renderer code. */
+@import '@cropvision/theme-tokens/css-variables.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { @apply h-full; }
+  body {
+    @apply m-0 overflow-hidden bg-background text-[13px] text-foreground antialiased;
+    font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Every number on screen: fixed-width digits so live updates never shift columns. */
+  .telemetry { @apply font-mono tabular-nums; }
+}
