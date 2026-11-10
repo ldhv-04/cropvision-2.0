@@ -12,6 +12,7 @@
     "@cropvision/domain": "workspace:*",
     "@cropvision/schema": "workspace:*",
     "@cropvision/sync-protocol": "workspace:*",
+    "@cropvision/theme-tokens": "workspace:*",
     "@op-engineering/op-sqlite": "^19.0.3",
     "expo": "~55.0.32",
     "expo-dev-client": "^55.0.41",

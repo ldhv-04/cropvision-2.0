@@ -21,6 +21,18 @@ try {
   await page.getByText(/Hub LAN :45678/).waitFor();
   pass('window renders, hub status shown');
 
+  // --- UI-03 shell: fixed viewport, 5-module rail, BSI legend, keyboard-first navigation
+  const shell = await page.evaluate(() => ({
+    scroll: document.documentElement.scrollHeight - innerHeight, rail: document.querySelectorAll('[data-testid=rail] button').length,
+    dock: document.querySelector('[data-testid=inspector]')?.getBoundingClientRect().width,
+  }));
+  assert.deepEqual(shell, { scroll: 0, rail: 5, dock: 400 });
+  await page.getByText('BSI ≥ 15%').waitFor();
+  await page.keyboard.press('Alt+4');
+  await page.getByRole('heading', { name: 'Lệnh giao việc' }).waitFor();
+  await page.keyboard.press('Alt+1');
+  pass('shell: no page scroll, 5 rail modules, 400px inspector, legend, Alt+N switches module');
+
   // --- draw a block on the map with real mouse clicks (SPEC phase 2: polygon tool)
   await page.getByText('Vẽ lô mới').click();
   const box = await page.locator('[data-testid=map]').boundingBox();
@@ -40,7 +52,7 @@ try {
   const block = await page.evaluate(async () => (await window.desktopApi.listBlocks())[0]);
 
   // --- work order via UI
-  await page.getByText('Việc & Vật tư').click();
+  await page.getByRole('button', { name: 'Việc & Vật tư' }).click();
   await page.locator('form').nth(0).locator('select').first().selectOption({ label: 'Lô E2E' });
   await page.getByLabel('Tiêu đề').fill('Khảo sát sáng');
   await page.getByText('Tạo lệnh').click();
@@ -56,7 +68,7 @@ try {
   pass('PHI violation shown as red alert');
 
   // --- irrigation lease via UI
-  await page.getByText('Tưới & Châm phân').click();
+  await page.getByRole('button', { name: 'Tưới & Châm phân' }).click();
   await page.locator('select').first().selectOption({ label: 'Lô E2E' });
   await page.getByText('Tính kế hoạch').click();
   await page.getByText(/C_FLUSH/).waitFor();
@@ -72,7 +84,7 @@ try {
   const row = { createdAt: now, updatedAt: now, deletedAt: null, syncStatus: 'PENDING' };
   const session = { id: 'e2e-ss', blockId: block.id, workOrderId: null, deviceId: 'phone', startedAt: now, completedAt: now, totalSamples: 1, diseaseIncidencePct: 100, blockSeverityIndexPct: 12, recommendationCode: 'LOCALIZED_SPOT_SPRAY', recommendationSummary: 'demo', ...row };
   const sample = { id: 'e2e-s1', sessionId: 'e2e-ss', checkpointId: null, canopyLayer: 'LOW', latitude: 12.67, longitude: 108.0, imuStabilityScore: 0.2, leafPixelCount: 100, lesionPixelCount: 12, dsIndexPct: 12, uncertaintyEntropy: 0.5, inferenceLatencyMs: 3, engineVersion: 'hsv-1.0.0', imageRelativeKey: '2026-11/e2e-s1.webp', mediaSyncStatus: 'LOCAL_ONLY', capturedAt: now, ...row };
-  await page.getByText('Khảo sát', { exact: true }).click();
+  await page.getByRole('button', { name: 'Khảo sát', exact: true }).click();
   const t0 = Date.now();
   let r = await fetch(`${hub}/api/v1/sync/push`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ deviceId: 'phone', scoutingSessions: [session], leafSamples: [sample], agronomicLogs: [], workOrders: [], irrigationLeases: [] }) });
   assert.equal(r.status, 200);
@@ -85,8 +97,51 @@ try {
   await img.waitFor({ timeout: 5000 });
   await page.waitForFunction(() => { const i = document.querySelector('img[alt="mẫu e2e-s1"]'); return i && i.complete && i.naturalWidth > 0; });
   console.log(`  push→image visible on desktop in ${Date.now() - t0} ms`);
-  assert.match(await img.getAttribute('src'), /^cv-media:\/\/media\/2026-11\/e2e-s1\.webp$/);
-  pass('session + WebP appear live via WebSocket; image served by cv-media://');
+  // memory rule: the list shows the 160px thumbnail, never the original
+  assert.match(await img.getAttribute('src'), /^cv-media:\/\/thumb\/2026-11\/e2e-s1\.webp$/);
+  assert.ok(await img.evaluate((i) => i.naturalWidth <= 160 && i.naturalHeight <= 160));
+  pass('session + WebP appear live via WebSocket; list uses cv-media://thumb');
+
+  await img.click();
+  const full = page.locator('img[alt="ảnh gốc e2e-s1"]');
+  await full.waitFor();
+  assert.match(await full.getAttribute('src'), /^cv-media:\/\/media\/2026-11\/e2e-s1\.webp$/);
+  await page.keyboard.press('Escape');
+  pass('row click opens the inspector dialog with the full-resolution image');
+
+  // --- Overview tab: rule-engine output for the block, issued to the phone as a work order
+  await page.getByRole('tab', { name: 'Tổng quan' }).click();
+  await page.getByTestId('inspector').getByText('LOCALIZED_SPOT_SPRAY').waitFor();
+  await page.getByRole('button', { name: /Giao lệnh cho điện thoại/ }).click();
+  await page.waitForFunction(async () => (await window.desktopApi.listWorkOrders()).some((w) => w.orderType === 'SPRAYING'));
+  pass('overview shows rule-engine code and issues a SPRAYING work order');
+
+  // --- virtualization: 300 samples render only a window of rows
+  const many = Array.from({ length: 300 }, (_, i) => ({ ...sample, id: `e2e-v${i}`, sessionId: 'e2e-big', dsIndexPct: i % 30, imageRelativeKey: `2026-11/v${i}.webp` }));
+  r = await fetch(`${hub}/api/v1/sync/push`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ deviceId: 'phone', scoutingSessions: [{ ...session, id: 'e2e-big', startedAt: now + 1, totalSamples: 300 }], leafSamples: many, agronomicLogs: [], workOrders: [], irrigationLeases: [] }) });
+  assert.equal(r.status, 200);
+  await page.getByRole('cell', { name: '300', exact: true }).click();
+  await page.getByText('300 mẫu lá').waitFor();
+  const rows = await page.locator('[data-testid=sample-row]').count();
+  assert.ok(rows > 0 && rows < 40, `rendered ${rows} rows of 300`);
+  pass(`300 samples virtualized (${rows} rows in DOM)`);
+
+  // --- Ctrl+K command dialog jumps to a block on the map
+  await page.keyboard.press('Control+k');
+  await page.getByPlaceholder(/Tìm lô/).fill('Lô E2E');
+  await page.keyboard.press('Enter');
+  await page.getByText(/Lô: Lô E2E/).waitFor();
+  pass('Ctrl+K command dialog selects a block and opens the map');
+
+  // --- theme template inspector switches palettes at runtime
+  const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await page.keyboard.press('Alt+5');
+  await page.getByRole('button', { name: 'Dùng Tactical Daylight' }).click();
+  await page.waitForFunction(() => document.documentElement.classList.contains('theme-tactical-daylight'));
+  assert.equal(await bg(), 'rgb(250, 249, 245)');
+  await page.getByRole('button', { name: 'Dùng Agri Command Dark' }).click();
+  assert.equal(await bg(), 'rgb(11, 15, 23)');
+  pass('theme inspector switches tactical-daylight ⇄ agri-command-dark');
 
   // --- no base64 images anywhere in the DOM
   assert.equal(await page.evaluate(() => [...document.images].filter((i) => i.src.startsWith('data:')).length), 0);

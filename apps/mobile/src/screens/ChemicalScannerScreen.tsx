@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Modal, Text, TextInput, View } from 'react-native';
 import { Camera, useCameraDevice, useCameraPermission, useCodeScanner } from 'react-native-vision-camera';
 import * as Location from 'expo-location';
 import { generateUuidV7 } from '@cropvision/domain';
-import { Btn, s } from '../components/ui';
+import { readableOn } from '@cropvision/theme-tokens';
+import { Btn, useHmi } from '../components/ui';
 import { upsertRow, type SqlExecutor } from '../db/sql-store';
 import { PESTICIDE_CATALOGUE } from '../data/pesticide-catalogue';
 import { evaluateScan, locateBlock, type LocatedBlock, type ScanVerdict } from '../services/scouting';
-
-const DAY = 86_400_000;
+import { fmtDMY, phiLockout } from '../lib/hmi';
 
 export function ChemicalScannerScreen({ exec }: { exec: SqlExecutor }) {
+  const { c, s } = useHmi();
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
   const [block, setBlock] = useState<LocatedBlock | null>(null);
@@ -46,31 +47,62 @@ export function ChemicalScannerScreen({ exec }: { exec: SqlExecutor }) {
     setSaved(true);
   };
 
+  const lock = verdict ? phiLockout(verdict, block?.expectedHarvestDate) : null;
+  const reset = () => { setVerdict(undefined); setCode(''); };
+  const notice = verdict && verdict.status !== 'OK' && verdict.status !== 'BLOCKED'
+    ? (verdict.status === 'UNKNOWN_PRODUCT' ? 'Không có trong danh mục thuốc — không thể xác nhận an toàn.' : 'Không xác định được lô (GPS không nằm trong lô nào).')
+    : null;
+
   return (
     <View style={s.screen}>
       <Text style={s.h1}>Quét thuốc BVTV</Text>
-      {hasPermission && device ? <Camera style={{ height: 180, borderRadius: 10 }} device={device} isActive codeScanner={scanner} /> : <Text style={s.muted}>Camera chưa sẵn sàng — nhập mã thủ công bên dưới.</Text>}
-      <View style={[s.row, { marginVertical: 8 }]}>
-        <TextInput testID="barcode-input" style={[s.input, { flex: 1 }]} value={code} onChangeText={setCode} placeholder="Mã vạch" keyboardType="number-pad" />
+      {/* manual entry above the preview: the on-screen keyboard covered it when it sat below (seen on emulator) */}
+      <View style={[s.row, { marginBottom: 12, flexWrap: 'nowrap' }]}>
+        <TextInput testID="barcode-input" style={[s.input, { flex: 1 }]} value={code} onChangeText={setCode} placeholder="Mã vạch" placeholderTextColor={c.muted}
+          keyboardType="number-pad" returnKeyType="done" onSubmitEditing={() => code && check(code)} />
         <Btn title="Kiểm tra" testID="check" onPress={() => check(code)} disabled={!code} />
       </View>
-      {verdict && (
-        <View testID="verdict" style={verdict.status === 'OK' ? s.alertGreen : s.alertRed}>
-          {verdict.status === 'OK' && <><Text style={s.alertText}>✔ ĐƯỢC PHÉP — {verdict.product.name}</Text>
-            <Text style={{ color: '#fff' }}>Lô {block?.name}. Thu hoạch an toàn từ {new Date(verdict.safeHarvestUnlockDate).toLocaleDateString('vi-VN')} (PHI {verdict.product.phiDays} ngày).</Text></>}
-          {verdict.status === 'BLOCKED' && <><Text style={s.alertText}>⛔ PHI_VIOLATION_BLOCKED</Text>
-            <Text style={{ color: '#fff' }}>{verdict.product.name}: PHI {verdict.product.phiDays} ngày vượt ngày thu hoạch dự kiến của lô {block?.name} ({block?.expectedHarvestDate ? new Date(block.expectedHarvestDate).toLocaleDateString('vi-VN') : '—'}). Không được phun.</Text></>}
-          {verdict.status === 'UNKNOWN_PRODUCT' && <Text style={s.alertText}>Không có trong danh mục thuốc — không thể xác nhận an toàn.</Text>}
-          {verdict.status === 'NO_BLOCK' && <Text style={s.alertText}>Không xác định được lô (GPS không nằm trong lô nào).</Text>}
-        </View>
-      )}
+      {hasPermission && device
+        // texture-view: a SurfaceView preview ignores RN layout/clipping on Android and was drawn over the header (seen on emulator).
+        ? <View style={{ height: 200, borderRadius: 8, borderWidth: 2, borderColor: c.border, overflow: 'hidden', marginBottom: 12 }}>
+            <Camera style={{ flex: 1 }} device={device} isActive={!lock} codeScanner={scanner} androidPreviewViewType="texture-view" />
+          </View>
+        : <Text style={[s.muted, { marginBottom: 12 }]}>Camera chưa sẵn sàng — nhập mã ở trên.</Text>}
+
       {verdict?.status === 'OK' && (
-        <View style={[s.row, { marginTop: 8 }]}>
-          <TextInput style={[s.input, { width: 90 }]} value={qty} onChangeText={setQty} keyboardType="decimal-pad" />
-          <Text>lít</Text>
-          <Btn title={saved ? 'Đã ghi ✓' : 'Ghi nhật ký (1 chạm)'} testID="log-one-tap" onPress={log} disabled={saved} />
+        <View testID="verdict" style={{ backgroundColor: c.healthy, borderRadius: 8, padding: 16, gap: 6 }}>
+          <Text style={{ color: readableOn(c.healthy), fontWeight: '800', fontSize: 18 }}>✔ ĐƯỢC PHÉP — {verdict.product.name}</Text>
+          <Text style={{ color: readableOn(c.healthy), fontSize: 15 }}>Lô {block?.name}. Thu hoạch an toàn từ {fmtDMY(verdict.safeHarvestUnlockDate)} (PHI {verdict.product.phiDays} ngày).</Text>
         </View>
       )}
+      {notice && <View testID="verdict" style={{ backgroundColor: c.warning, borderRadius: 8, padding: 16 }}><Text style={{ color: readableOn(c.warning), fontWeight: '800', fontSize: 16 }}>{notice}</Text></View>}
+      {verdict?.status === 'OK' && (
+        <View style={[s.row, { marginTop: 12, flexWrap: 'nowrap' }]}>
+          <TextInput style={[s.input, { width: 96 }]} value={qty} onChangeText={setQty} keyboardType="decimal-pad" />
+          <Text style={s.text}>lít</Text>
+          <Btn title={saved ? 'Đã ghi ✓' : 'Ghi nhật ký (1 chạm)'} testID="log-one-tap" onPress={log} disabled={saved} style={{ flex: 1 }} />
+        </View>
+      )}
+
+      {/* PHI violation: full-screen block. There is no "apply anyway" path; the only action is to scan something else. */}
+      <Modal visible={verdict?.status === 'BLOCKED'} animationType="none" statusBarTranslucent onRequestClose={reset}>
+        {verdict?.status === 'BLOCKED' && (
+          <View testID="verdict" accessibilityRole="alert" style={{ flex: 1, backgroundColor: c.danger, padding: 24, paddingTop: 64, gap: 16 }}>
+            <Text style={{ color: c.onDanger, fontSize: 28, fontWeight: '900' }}>⛔ CẤM PHUN</Text>
+            <Text style={{ color: c.onDanger, fontSize: 16, fontWeight: '800', letterSpacing: 0.5 }}>PHI_VIOLATION_BLOCKED</Text>
+            <Text style={{ color: c.onDanger, fontSize: 18 }}>{verdict.product.name} — thời gian cách ly {verdict.product.phiDays} ngày, lô {block?.name ?? '—'}.</Text>
+            <View style={{ borderWidth: 2, borderColor: c.onDanger, borderRadius: 8, padding: 16, gap: 10 }}>
+              <Text style={{ color: c.onDanger, fontSize: 16 }}>Ngày thu hoạch dự kiến</Text>
+              <Text testID="phi-harvest" style={{ color: c.onDanger, fontSize: 30, fontWeight: '900', fontFamily: 'monospace' }}>{lock?.harvest ?? '—'}</Text>
+              <Text style={{ color: c.onDanger, fontSize: 16 }}>Ngày hết cách ly an toàn</Text>
+              <Text testID="phi-safe" style={{ color: c.onDanger, fontSize: 30, fontWeight: '900', fontFamily: 'monospace' }}>{lock?.safe ?? fmtDMY(verdict.safeHarvestUnlockDate)}</Text>
+              {lock && <Text style={{ color: c.onDanger, fontSize: 16, fontWeight: '700' }}>Vượt {lock.overDays} ngày — nông sản sẽ còn tồn dư thuốc khi thu hoạch.</Text>}
+            </View>
+            <View style={{ flex: 1 }} />
+            <Btn title="QUÉT SẢN PHẨM KHÁC" testID="phi-scan-other" variant="outline" height={64} onPress={reset} />
+          </View>
+        )}
+      </Modal>
     </View>
   );
 }

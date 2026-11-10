@@ -1,5 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "lib": ["ES2022", "DOM", "DOM.Iterable"], "jsx": "react-jsx", "types": ["node"] },
-  "include": ["src", "test", "electron.vite.config.ts"]
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"], "jsx": "react-jsx", "types": ["node"],
+    // Libraries without their own @types/react sibling (cmdk) would otherwise pick the hoisted React 19 types from apps/mobile.
+    "paths": { "react": ["./node_modules/@types/react"], "react/*": ["./node_modules/@types/react/*"] }
+  },
+  "include": ["src", "test", "electron.vite.config.ts", "tailwind.config.ts"]
 }

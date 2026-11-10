@@ -61,6 +61,18 @@ describe('chemical scanner (AC-22)', () => {
     expect((await locateBlock(exec, { latitude: 12.003, longitude: 108.005 }))?.id).toBe('b1');
     expect(await locateBlock(exec, { latitude: 0, longitude: 0 })).toBeNull();
   });
+  it('overlapping blocks: picks the smallest polygon containing the fix, whatever the row order', async () => {
+    const rect = (x0: number, y0: number, x1: number, y1: number) => JSON.stringify({ type: 'Polygon', coordinates: [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]] });
+    const base = { cropVariety: 'ROBUSTA', growthStage: 'RIPENING', treeCount: 1, expectedHarvestDate: null, nominalDripFlowLph: 4, createdAt: NOW, updatedAt: NOW, deletedAt: null, syncStatus: 'SYNCED' };
+    // stored area_hectares deliberately contradicts the geometry: geometry decides
+    await upsertRow(exec, 'blocks', { ...base, id: 'a-giant', name: 'Giant', areaHectares: 0.001, boundaryGeoJson: rect(107, 11, 110, 14) });
+    expect((await locateBlock(exec, { latitude: 12.003, longitude: 108.005 }))?.id).toBe('b1');
+    await upsertRow(exec, 'blocks', { ...base, id: 'z-small', name: 'Small', areaHectares: 9999, boundaryGeoJson: rect(108.004, 12.002, 108.006, 12.004) });
+    expect((await locateBlock(exec, { latitude: 12.003, longitude: 108.005 }))?.id).toBe('z-small');
+    // only the giant block covers this point
+    expect((await locateBlock(exec, { latitude: 13.5, longitude: 107.5 }))?.id).toBe('a-giant');
+  });
+
   it('red alert when the PHI would pass the expected harvest date, green otherwise', async () => {
     const b1 = (await locateBlock(exec, { latitude: 12.003, longitude: 108.005 }))!;
     const red = evaluateScan({ barcode: '8930000000011', catalogue, block: b1, nowMs: NOW });

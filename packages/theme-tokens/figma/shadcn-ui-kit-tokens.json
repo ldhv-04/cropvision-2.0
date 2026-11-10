@@ -1,0 +1,434 @@
+{
+  "agri-command-dark": {
+    "shadcn": {
+      "background": {
+        "$value": "#0B0F17",
+        "$type": "color"
+      },
+      "foreground": {
+        "$value": "#F8FAFC",
+        "$type": "color"
+      },
+      "card": {
+        "$value": "#111622",
+        "$type": "color"
+      },
+      "card-foreground": {
+        "$value": "#F8FAFC",
+        "$type": "color"
+      },
+      "popover": {
+        "$value": "#151C2C",
+        "$type": "color"
+      },
+      "popover-foreground": {
+        "$value": "#F8FAFC",
+        "$type": "color"
+      },
+      "primary": {
+        "$value": "#16A34A",
+        "$type": "color"
+      },
+      "primary-foreground": {
+        "$value": "#052E16",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#1E293B",
+        "$type": "color"
+      },
+      "secondary-foreground": {
+        "$value": "#E2E8F0",
+        "$type": "color"
+      },
+      "muted": {
+        "$value": "#161F30",
+        "$type": "color"
+      },
+      "muted-foreground": {
+        "$value": "#94A3B8",
+        "$type": "color"
+      },
+      "accent": {
+        "$value": "#1E293B",
+        "$type": "color"
+      },
+      "accent-foreground": {
+        "$value": "#F8FAFC",
+        "$type": "color"
+      },
+      "destructive": {
+        "$value": "#EF4444",
+        "$type": "color"
+      },
+      "destructive-foreground": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "#1E293B",
+        "$type": "color"
+      },
+      "input": {
+        "$value": "#1E293B",
+        "$type": "color"
+      },
+      "ring": {
+        "$value": "#22C55E",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "0.375rem",
+        "$type": "borderRadius"
+      }
+    },
+    "telemetry": {
+      "healthy-fill": {
+        "$value": "#22C55E",
+        "$type": "color"
+      },
+      "healthy-bg": {
+        "$value": "rgba(34, 197, 94, 0.12)",
+        "$type": "color"
+      },
+      "healthy-border": {
+        "$value": "rgba(34, 197, 94, 0.40)",
+        "$type": "color"
+      },
+      "warning-fill": {
+        "$value": "#F59E0B",
+        "$type": "color"
+      },
+      "warning-bg": {
+        "$value": "rgba(245, 158, 11, 0.12)",
+        "$type": "color"
+      },
+      "warning-border": {
+        "$value": "rgba(245, 158, 11, 0.40)",
+        "$type": "color"
+      },
+      "critical-fill": {
+        "$value": "#EF4444",
+        "$type": "color"
+      },
+      "critical-bg": {
+        "$value": "rgba(239, 68, 68, 0.15)",
+        "$type": "color"
+      },
+      "critical-border": {
+        "$value": "rgba(239, 68, 68, 0.50)",
+        "$type": "color"
+      },
+      "hydraulic-fill": {
+        "$value": "#3B82F6",
+        "$type": "color"
+      },
+      "hydraulic-bg": {
+        "$value": "rgba(59, 130, 246, 0.15)",
+        "$type": "color"
+      },
+      "hydraulic-border": {
+        "$value": "rgba(59, 130, 246, 0.50)",
+        "$type": "color"
+      }
+    }
+  },
+  "tactical-daylight": {
+    "shadcn": {
+      "background": {
+        "$value": "#FAF9F5",
+        "$type": "color"
+      },
+      "foreground": {
+        "$value": "#090D16",
+        "$type": "color"
+      },
+      "card": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "card-foreground": {
+        "$value": "#090D16",
+        "$type": "color"
+      },
+      "popover": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "popover-foreground": {
+        "$value": "#090D16",
+        "$type": "color"
+      },
+      "primary": {
+        "$value": "#0F3D26",
+        "$type": "color"
+      },
+      "primary-foreground": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#E2E8F0",
+        "$type": "color"
+      },
+      "secondary-foreground": {
+        "$value": "#0F172A",
+        "$type": "color"
+      },
+      "muted": {
+        "$value": "#F1F0EC",
+        "$type": "color"
+      },
+      "muted-foreground": {
+        "$value": "#334155",
+        "$type": "color"
+      },
+      "accent": {
+        "$value": "#DCFCE7",
+        "$type": "color"
+      },
+      "accent-foreground": {
+        "$value": "#0F3D26",
+        "$type": "color"
+      },
+      "destructive": {
+        "$value": "#DC2626",
+        "$type": "color"
+      },
+      "destructive-foreground": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "#94A3B8",
+        "$type": "color"
+      },
+      "input": {
+        "$value": "#64748B",
+        "$type": "color"
+      },
+      "ring": {
+        "$value": "#0F3D26",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "0.5rem",
+        "$type": "borderRadius"
+      }
+    },
+    "telemetry": {
+      "healthy-fill": {
+        "$value": "#15803D",
+        "$type": "color"
+      },
+      "healthy-bg": {
+        "$value": "#DCFCE7",
+        "$type": "color"
+      },
+      "healthy-border": {
+        "$value": "#166534",
+        "$type": "color"
+      },
+      "warning-fill": {
+        "$value": "#B45309",
+        "$type": "color"
+      },
+      "warning-bg": {
+        "$value": "#FEF3C7",
+        "$type": "color"
+      },
+      "warning-border": {
+        "$value": "#D97706",
+        "$type": "color"
+      },
+      "critical-fill": {
+        "$value": "#B91C1C",
+        "$type": "color"
+      },
+      "critical-bg": {
+        "$value": "#FEE2E2",
+        "$type": "color"
+      },
+      "critical-border": {
+        "$value": "#DC2626",
+        "$type": "color"
+      },
+      "hydraulic-fill": {
+        "$value": "#1D4ED8",
+        "$type": "color"
+      },
+      "hydraulic-bg": {
+        "$value": "#DBEAFE",
+        "$type": "color"
+      },
+      "hydraulic-border": {
+        "$value": "#2563EB",
+        "$type": "color"
+      }
+    }
+  },
+  "high-noon-monochrome": {
+    "shadcn": {
+      "background": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "foreground": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "card": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "card-foreground": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "popover": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "popover-foreground": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "primary": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "primary-foreground": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#E5E5E5",
+        "$type": "color"
+      },
+      "secondary-foreground": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "muted": {
+        "$value": "#F2F2F2",
+        "$type": "color"
+      },
+      "muted-foreground": {
+        "$value": "#1A1A1A",
+        "$type": "color"
+      },
+      "accent": {
+        "$value": "#FFD600",
+        "$type": "color"
+      },
+      "accent-foreground": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "destructive": {
+        "$value": "#B00000",
+        "$type": "color"
+      },
+      "destructive-foreground": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "border": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "input": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "ring": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "radius": {
+        "$value": "0.25rem",
+        "$type": "borderRadius"
+      }
+    },
+    "telemetry": {
+      "healthy-fill": {
+        "$value": "#005C1F",
+        "$type": "color"
+      },
+      "healthy-bg": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "healthy-border": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "warning-fill": {
+        "$value": "#8A6100",
+        "$type": "color"
+      },
+      "warning-bg": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "warning-border": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "critical-fill": {
+        "$value": "#B00000",
+        "$type": "color"
+      },
+      "critical-bg": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "critical-border": {
+        "$value": "#000000",
+        "$type": "color"
+      },
+      "hydraulic-fill": {
+        "$value": "#0033A0",
+        "$type": "color"
+      },
+      "hydraulic-bg": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "hydraulic-border": {
+        "$value": "#000000",
+        "$type": "color"
+      }
+    }
+  },
+  "$themes": [
+    {
+      "id": "agri-command-dark",
+      "name": "Agri Command Dark",
+      "selectedTokenSets": {
+        "agri-command-dark": "enabled"
+      }
+    },
+    {
+      "id": "tactical-daylight",
+      "name": "Tactical Daylight",
+      "selectedTokenSets": {
+        "tactical-daylight": "enabled"
+      }
+    },
+    {
+      "id": "high-noon-monochrome",
+      "name": "High Noon Monochrome",
+      "selectedTokenSets": {
+        "high-noon-monochrome": "enabled"
+      }
+    }
+  ],
+  "$metadata": {
+    "tokenSetOrder": [
+      "agri-command-dark",
+      "tactical-daylight",
+      "high-noon-monochrome"
+    ]
+  }
+}
